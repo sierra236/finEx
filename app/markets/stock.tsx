@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import Colors from "@/constants/Colors";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { fetchStockData } from "@/data/api/stock";
 import { STOCK_SYMBOLS } from "@/constants/StockList";
 import { usePriceAlert } from "@/hooks/usePriceAlert";
@@ -28,6 +28,7 @@ const COMPANY_DOMAINS: Record<string, string> = {
 };
 
 export default function StockMarket() {
+  const router = useRouter();
   const [stocks, setStocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -65,53 +66,57 @@ export default function StockMarket() {
     const isFav = favorites.includes(item.symbol.toLowerCase());
 
     return (
-      <View style={styles.card}>
-        <Image
-          source={{ uri: logoUrl }}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.stockName}>{item.name ?? item.symbol}</Text>
-          <Text style={styles.price}>${item.price?.toFixed(2)}</Text>
-        </View>
-        <View style={styles.rightSide}>
-          <View style={styles.changeBlock}>
-            <Ionicons
-              name={isPositive ? "arrow-up" : "arrow-down"}
-              size={16}
-              color={isPositive ? "#4caf50" : "#ef5350"}
-              style={{ marginRight: 4 }}
-            />
-            <Text
-              style={[
-                styles.changeText,
-                { color: isPositive ? "#4caf50" : "#ef5350" },
-              ]}
-            >
-              {change?.toFixed(2)}%
-            </Text>
+      <TouchableOpacity
+        onPress={() => router.push(`/markets/stock/${item.symbol}`)}
+      >
+        <View style={styles.card}>
+          <Image
+            source={{ uri: logoUrl }}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.stockName}>{item.name ?? item.symbol}</Text>
+            <Text style={styles.price}>${item.price?.toFixed(2)}</Text>
           </View>
-          <TouchableOpacity
-            onPress={async () => {
-              const updated = await toggleFavoriteCoin(
-                item.symbol.toLowerCase()
-              );
-              setFavorites(updated);
-              setFavoriteStocks(
-                stocks.filter((s) => updated.includes(s.symbol.toLowerCase()))
-              );
-            }}
-          >
-            <Ionicons
-              name={isFav ? "star" : "star-outline"}
-              size={18}
-              color="#facc15"
-              style={{ marginTop: 8 }}
-            />
-          </TouchableOpacity>
+          <View style={styles.rightSide}>
+            <View style={styles.changeBlock}>
+              <Ionicons
+                name={isPositive ? "arrow-up" : "arrow-down"}
+                size={16}
+                color={isPositive ? "#4caf50" : "#ef5350"}
+                style={{ marginRight: 4 }}
+              />
+              <Text
+                style={[
+                  styles.changeText,
+                  { color: isPositive ? "#4caf50" : "#ef5350" },
+                ]}
+              >
+                {change?.toFixed(2)}%
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={async () => {
+                const updated = await toggleFavoriteCoin(
+                  item.symbol.toLowerCase()
+                );
+                setFavorites(updated);
+                setFavoriteStocks(
+                  stocks.filter((s) => updated.includes(s.symbol.toLowerCase()))
+                );
+              }}
+            >
+              <Ionicons
+                name={isFav ? "star" : "star-outline"}
+                size={18}
+                color="#facc15"
+                style={{ marginTop: 8 }}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 

@@ -11,24 +11,25 @@ import {
   Animated,
 } from "react-native";
 import Colors from "@/constants/Colors";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { CRYPTO_IDS } from "@/constants/CryptoList";
 import { getFavoriteCoins, toggleFavoriteCoin } from "@/data/storage/favorites";
 import axios from "axios";
 
 export default function CryptoMarket() {
+  const router = useRouter();
+
   const priceColorAnim = useRef<Record<string, Animated.Value>>(
     Object.fromEntries(CRYPTO_IDS.map((id) => [id, new Animated.Value(0)]))
   ).current;
+
   const [coins, setCoins] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [priceFlashes, setPriceFlashes] = useState<
     Record<string, "up" | "down" | null>
   >({});
-
-  // 🎨 animasyon değerlerini useRef ile tut
 
   useEffect(() => {
     const loadData = async () => {
@@ -83,7 +84,7 @@ export default function CryptoMarket() {
             const newPrice = updated.current_price;
             const oldPrice = coin.current_price;
 
-            if (newPrice > oldPrice || newPrice < oldPrice) {
+            if (newPrice !== oldPrice) {
               const direction = newPrice > oldPrice ? "up" : "down";
               setPriceFlashes((prev) => ({ ...prev, [coin.id]: direction }));
 
@@ -113,7 +114,7 @@ export default function CryptoMarket() {
           console.error("Real-time price fetch failed:", err);
         }
       }
-    }, 30000); // ⏱️ 30 saniyede bir
+    }, 30000);
 
     return () => clearInterval(priceInterval);
   }, []);
@@ -133,44 +134,48 @@ export default function CryptoMarket() {
     });
 
     return (
-      <View style={styles.card}>
-        <Image source={{ uri: item.image }} style={styles.logo} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.coinName}>{item.name}</Text>
-          <Animated.Text style={[styles.price, { color: animatedColor }]}>
-            ${item.current_price.toFixed(2)}
-          </Animated.Text>
-        </View>
-        <TouchableOpacity
-          onPress={async () => {
-            const updated = await toggleFavoriteCoin(item.id);
-            setFavorites(updated);
-          }}
-        >
-          <Ionicons
-            name={isFavorite ? "star" : "star-outline"}
-            size={20}
-            color="#facc15"
-            style={{ marginRight: 12 }}
-          />
-        </TouchableOpacity>
-        <View style={styles.changeBlock}>
-          <Ionicons
-            name={isZero ? "remove" : isPositive ? "arrow-up" : "arrow-down"}
-            size={16}
-            color={isZero ? "#aaa" : isPositive ? "#4caf50" : "#ef5350"}
-            style={{ marginRight: 4 }}
-          />
-          <Text
-            style={[
-              styles.changeText,
-              { color: isZero ? "#aaa" : isPositive ? "#4caf50" : "#ef5350" },
-            ]}
+      <TouchableOpacity
+        onPress={() => router.push(`markets/crypto/${item.id}`)}
+      >
+        <View style={styles.card}>
+          <Image source={{ uri: item.image }} style={styles.logo} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.coinName}>{item.name}</Text>
+            <Animated.Text style={[styles.price, { color: animatedColor }]}>
+              ${item.current_price.toFixed(2)}
+            </Animated.Text>
+          </View>
+          <TouchableOpacity
+            onPress={async () => {
+              const updated = await toggleFavoriteCoin(item.id);
+              setFavorites(updated);
+            }}
           >
-            {change?.toFixed(2)}%
-          </Text>
+            <Ionicons
+              name={isFavorite ? "star" : "star-outline"}
+              size={20}
+              color="#facc15"
+              style={{ marginRight: 12 }}
+            />
+          </TouchableOpacity>
+          <View style={styles.changeBlock}>
+            <Ionicons
+              name={isZero ? "remove" : isPositive ? "arrow-up" : "arrow-down"}
+              size={16}
+              color={isZero ? "#aaa" : isPositive ? "#4caf50" : "#ef5350"}
+              style={{ marginRight: 4 }}
+            />
+            <Text
+              style={[
+                styles.changeText,
+                { color: isZero ? "#aaa" : isPositive ? "#4caf50" : "#ef5350" },
+              ]}
+            >
+              {change?.toFixed(2)}%
+            </Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 

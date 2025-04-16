@@ -1,1 +1,20 @@
-export const STOCK_SYMBOLS = ["AAPL", "MSFT", "GOOGL", "AMZN", "META"];
+export const STOCK_SYMBOLS = [
+  "AAPL",
+  "MSFT",
+  "GOOGL",
+  "AMZN",
+  "META",
+  "TSLA",
+  "NFLX",
+  "NVDA",
+  "INTC",
+  "AMD",
+  "BABA",
+  "CRM",
+  "UBER",
+  "LYFT",
+  "SHOP",
+  "COIN",
+  "SQ",
+  "PYPL",
+];
