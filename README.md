@@ -11,3 +11,11 @@
    ```bash
     npx expo start
    ```
+
+## Introduction
+
+Use as bank account - Salary account / Spending accoun
+
+Saving
+
+Invest
