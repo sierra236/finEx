@@ -24,7 +24,7 @@ export default function Transactions() {
 
         <TouchableOpacity
           style={[styles.card, { backgroundColor: Colors.tintColor }]}
-          onPress={() => router.push("/(markets)/crypto")}
+          onPress={() => router.push("/markets/crypto")}
         >
           <View style={styles.cardContent}>
             <Ionicons name="logo-bitcoin" size={30} color={Colors.white} />
