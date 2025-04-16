@@ -1,16 +1,16 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import React from "react";
 import Colors from "@/constants/Colors";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import Header from "@/components/Header";
 import { PieChart } from "react-native-gifted-charts";
 import ExpenseBlock from "@/components/ExpenseBlock";
 import IncomeBlock from "@/components/IncomeBlock";
 import SpendingBlock from "@/components/SpendingBlock";
-import ExpenseList from '@/data/expenses.json';
-import incomeList from '@/data/income.json';
-import spendingList from '@/data/spending.json';
- 
+import ExpenseList from "@/data/expenses.json";
+import incomeList from "@/data/income.json";
+import spendingList from "@/data/spending.json";
+
 const Page = () => {
   const pieData = [
     {
@@ -31,6 +31,16 @@ const Page = () => {
     },
     { value: 3, color: "#FFA5BA", gradientCenterColor: "#FF7F97", text: "3%" },
   ];
+
+  const router = useRouter();
+
+  const handleExpensePress = (name: string) => {
+    if (name.toLowerCase() === "crypto") {
+      router.push("/markets/crypto");
+    } else if (name.toLowerCase() === "stock") {
+      router.push("/markets/stock");
+    }
+  };
 
   return (
     <>
@@ -58,13 +68,12 @@ const Page = () => {
                 $1475.<Text style={{ fontSize: 22, fontWeight: 400 }}>00</Text>
               </Text>
             </View>
-            <View style={{paddingVertical:20,alignItems:'center'}}>
+            <View style={{ paddingVertical: 20, alignItems: "center" }}>
               <PieChart
                 data={pieData}
                 donut
                 showGradient
                 sectionAutoFocus
-                // focusOnPress
                 semiCircle
                 radius={70}
                 innerRadius={55}
@@ -90,10 +99,12 @@ const Page = () => {
             </View>
           </View>
 
-          <ExpenseBlock expenseList={ExpenseList} />
+          <ExpenseBlock
+            expenseList={ExpenseList}
+            onPress={handleExpensePress}
+          />
 
           <IncomeBlock incomeList={incomeList} />
-
           <SpendingBlock spendingList={spendingList} />
         </ScrollView>
       </View>
