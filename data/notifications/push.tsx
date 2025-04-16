@@ -6,7 +6,7 @@ export const sendPriceAlertNotification = async (
 ) => {
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: `\u{1F6A8} ${symbol} moved ${change.toFixed(2)}%`,
+      title: `🚨 ${symbol} moved ${change.toFixed(2)}%`,
       body: "Tap to check the latest change.",
       sound: true,
     },

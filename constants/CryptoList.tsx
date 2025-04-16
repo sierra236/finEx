@@ -4,4 +4,9 @@ export const CRYPTO_IDS = [
   "solana",
   "dogecoin",
   "cardano",
+  "tether",
+  "xrp",
+  "bnb",
+  "usdc",
+  "tron",
 ];

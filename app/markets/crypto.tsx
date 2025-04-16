@@ -10,58 +10,52 @@ import {
 } from "react-native";
 import Colors from "@/constants/Colors";
 import { Stack } from "expo-router";
-import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { CRYPTO_IDS } from "@/constants/CryptoList";
 import { usePriceAlert } from "@/hooks/usePriceAlert";
 import { getFavoriteCoins, toggleFavoriteCoin } from "@/data/storage/favorites";
+import axios from "axios";
 
 export default function CryptoMarket() {
   const [coins, setCoins] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [favoriteCoins, setFavoriteCoins] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  usePriceAlert(coins);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const res = await axios.get(
-          "https://api.coingecko.com/api/v3/coins/markets",
-          {
+        setLoading(true);
+        const [favIds, res] = await Promise.all([
+          getFavoriteCoins(),
+          axios.get("https://api.coingecko.com/api/v3/coins/markets", {
             params: {
               vs_currency: "usd",
               ids: CRYPTO_IDS.join(","),
               price_change_percentage: "24h",
             },
-          }
-        );
+          }),
+        ]);
+
+        setFavorites(favIds);
         setCoins(res.data);
       } catch (err) {
-        console.error("Error fetching coin data", err);
+        console.error("Error fetching crypto data", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
-
-  useEffect(() => {
-    const updateFavorites = async () => {
-      const ids = await getFavoriteCoins();
-      setFavorites(ids);
-      setFavoriteCoins(coins.filter((c) => ids.includes(c.id)));
-    };
-
-    updateFavorites();
-  }, [coins]);
-
-  usePriceAlert(coins);
 
   const renderItem = ({ item }: { item: any }) => {
     const change = item.price_change_percentage_24h;
     const isPositive = change >= 0;
     const isZero = change === 0;
+
+    const isFavorite = favorites.includes(item.id);
 
     return (
       <View style={styles.card}>
@@ -72,17 +66,16 @@ export default function CryptoMarket() {
         />
         <View style={{ flex: 1 }}>
           <Text style={styles.coinName}>{item.name}</Text>
-          <Text style={styles.price}>${item.current_price?.toFixed(2)}</Text>
+          <Text style={styles.price}>${item.current_price.toFixed(2)}</Text>
         </View>
         <TouchableOpacity
           onPress={async () => {
             const updated = await toggleFavoriteCoin(item.id);
             setFavorites(updated);
-            setFavoriteCoins(coins.filter((c) => updated.includes(c.id)));
           }}
         >
           <Ionicons
-            name={favorites.includes(item.id) ? "star" : "star-outline"}
+            name={isFavorite ? "star" : "star-outline"}
             size={20}
             color="#facc15"
             style={{ marginRight: 12 }}
@@ -114,23 +107,12 @@ export default function CryptoMarket() {
       {loading ? (
         <ActivityIndicator size="large" color={Colors.white} />
       ) : (
-        <>
-          {favoriteCoins.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Favorites</Text>
-              {favoriteCoins.map((item) => (
-                <View key={`fav-${item.id}`}>{renderItem({ item })}</View>
-              ))}
-            </>
-          )}
-
-          <Text style={styles.sectionTitle}>All Coins</Text>
-          {coins
-            .filter((c) => !favorites.includes(c.id))
-            .map((item) => (
-              <View key={`coin-${item.id}`}>{renderItem({ item })}</View>
-            ))}
-        </>
+        <FlatList
+          data={coins}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: 20 }}
+        />
       )}
     </View>
   );
@@ -176,12 +158,5 @@ const styles = StyleSheet.create({
   changeText: {
     fontSize: 14,
     fontWeight: "600",
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: Colors.white,
-    marginBottom: 10,
-    marginTop: 20,
   },
 });

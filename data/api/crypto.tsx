@@ -1,32 +1,16 @@
 import axios from "axios";
+import { CRYPTO_IDS } from "@/constants/CryptoList";
 
-const COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price";
-
-export const getCryptoPrices = async (
-  assets = [
-    "bitcoin",
-    "ethereum",
-    "ripple",
-    "solana",
-    "litecoin",
-    "dogecoin",
-    "polkadot",
-    "cardano",
-    "chainlink",
-    "uniswap",
-  ],
-  currency = "usd"
-) => {
-  try {
-    const response = await axios.get(COINGECKO_URL, {
+export const fetchCryptoData = async () => {
+  const res = await axios.get(
+    "https://api.coingecko.com/api/v3/coins/markets",
+    {
       params: {
-        ids: assets.join(","),
-        vs_currencies: currency,
+        vs_currency: "usd",
+        ids: CRYPTO_IDS.join(","),
+        price_change_percentage: "24h",
       },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching crypto prices:", error);
-    return null;
-  }
+    }
+  );
+  return res.data;
 };

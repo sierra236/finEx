@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Colors from "@/constants/Colors";
 import { Stack } from "expo-router";
-import { getStockPrices } from "@/data/api/stock";
+import { fetchStockData } from "@/data/api/stock";
 import { STOCK_SYMBOLS } from "@/constants/StockList";
 import { usePriceAlert } from "@/hooks/usePriceAlert";
 import { getFavoriteCoins, toggleFavoriteCoin } from "@/data/storage/favorites";
@@ -33,9 +33,11 @@ export default function StockMarket() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [favoriteStocks, setFavoriteStocks] = useState<any[]>([]);
 
+  usePriceAlert(stocks);
+
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getStockPrices(STOCK_SYMBOLS);
+      const data = await fetchStockData();
       setStocks(data);
       setLoading(false);
     };
@@ -54,8 +56,6 @@ export default function StockMarket() {
 
     updateFavorites();
   }, [stocks]);
-
-  usePriceAlert(stocks);
 
   const renderItem = ({ item }: { item: any }) => {
     const domain = COMPANY_DOMAINS[item.symbol];

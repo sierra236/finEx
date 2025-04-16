@@ -7,15 +7,14 @@ import * as Notifications from "expo-notifications";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-useEffect(() => {
-  Notifications.requestPermissionsAsync();
-}, []);
-
 export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+
+  useEffect(() => {
+    Notifications.requestPermissionsAsync();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
